@@ -83,3 +83,21 @@ func GetEventByID(id int64) (*Event, error) {
 
 	return &event, nil
 }
+
+func (e Event) Update() error {
+	query := `
+  UPDATE events
+  SET name = ?, description = ?, location = ?, dateTime = ?
+  WHERE id = ?
+  `
+
+	statement, error := db.DB.Prepare(query)
+	if error != nil {
+		return error
+	}
+
+	defer statement.Close()
+
+	_, error = statement.Exec(e.Name, e.Description, e.Location, e.DateTime, e.ID)
+	return error
+}
