@@ -1,9 +1,13 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/LeonLonsdale/go-web-api/db"
+)
 
 type Event struct {
-	ID          int
+	ID          int64
 	Name        string    `binding:"required"`
 	Description string    `binding:"required"`
 	Location    string    `binding:"required"`
@@ -13,11 +17,69 @@ type Event struct {
 
 var events = []Event{}
 
-func (e Event) Save() {
-	// add to database
-	events = append(events, e)
+func (e Event) Save() error {
+	// Prepare the SQL statement for execution
+	// Preparing statements can improve performance, especially if the statement is executed multiple times.
+	query := `
+    INSERT INTO events (name, description, location, dateTime, user_id)
+    VALUES (?,?,?,?,?)
+  `
+
+	stmt, err := db.DB.Prepare(query)
+	if err != nil {
+		return err
+	}
+
+	// a statement uses up resources as it sits in a ready state waiting to be executed by Exec() or Query()
+	// it's therefore important to close it when it's no longer needed, to free up those resources
+	defer stmt.Close()
+
+	// Execute the prepared statement with the event's fields
+	result, err := stmt.Exec(e.Name, e.Description, e.Location, e.DateTime, e.UserID)
+	if err != nil {
+		return err
+	}
+
+	// Get the ID of the last inserted row in the database and assign the generated ID back to the event object
+	id, err := result.LastInsertId()
+	e.ID = id
+
+	return err
 }
 
-func GetAllEvents() []Event {
-	return events
+func GetAllEvents() ([]Event, error) {
+	query := "SELECT * FROM events"
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var events []Event
+
+	// Next() returns a bool as long as there are rows left to iterate
+	for rows.Next() {
+		var event Event
+		// pointers used - event populated this way
+		err := rows.Scan(&event.ID, &event.Name, &event.Description, &event.Location, &event.DateTime, &event.UserID)
+		if err != nil {
+			return nil, err
+		}
+		events = append(events, event)
+	}
+
+	return events, nil
+}
+
+func GetEventByID(id int64) (*Event, error) {
+	var event Event
+	query := "SELECT * FROM events WHERE id = ?"
+	row := db.DB.QueryRow(query, id)
+	err := row.Scan(&event.ID, &event.Name, &event.Description, &event.Location, &event.DateTime, &event.UserID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &event, nil
 }
