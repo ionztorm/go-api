@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "go-web-api-practice",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

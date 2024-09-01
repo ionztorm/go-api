@@ -1,0 +1,24 @@
+meta {
+  name: Create Event
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:8080/events
+  body: json
+  auth: none
+}
+
+headers {
+  content-type: application/json
+}
+
+body:json {
+  {
+    "name":"The Main Event",
+    "description":"Liverpool's biggest event of the summer",
+    "location":"Liverpool",
+    "dateTime":"2025-01-01T15:30:00.000Z"
+  }
+}

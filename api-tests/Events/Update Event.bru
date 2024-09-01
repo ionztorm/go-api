@@ -1,0 +1,24 @@
+meta {
+  name: Update Event
+  type: http
+  seq: 5
+}
+
+put {
+  url: http://localhost:8080/events/1
+  body: json
+  auth: none
+}
+
+headers {
+  content-type: application/json
+}
+
+body:json {
+  {
+    "name":"The Main Event",
+    "description":"Manchester's biggest event of the summer",
+    "location":"Manchester",
+    "dateTime":"2025-01-01T15:30:00.000Z"
+  }
+}
