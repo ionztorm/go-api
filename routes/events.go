@@ -10,14 +10,12 @@ import (
 
 func getEvent(context *gin.Context) {
 	eventId, err := strconv.ParseInt(context.Param("id"), 10, 64)
-
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "an event ID is required"})
 		return
 	}
 
 	event, err := models.GetEventByID(eventId)
-
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "could not retrieve event"})
 		return
@@ -28,14 +26,12 @@ func getEvent(context *gin.Context) {
 
 func getEvents(context *gin.Context) {
 	events, err := models.GetAllEvents()
-
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "could not retrieve events"})
 		return
 	}
 
 	context.JSON(http.StatusOK, events)
-
 }
 
 func createEvent(context *gin.Context) {
@@ -51,7 +47,6 @@ func createEvent(context *gin.Context) {
 	event.UserID = 1
 
 	err = event.Save()
-
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "unable to save event"})
 		return
@@ -89,4 +84,26 @@ func updateEvent(context *gin.Context) {
 	}
 
 	context.JSON(http.StatusOK, gin.H{"message": "event updated successfully", "event": updatedEvent})
+}
+
+func deleteEvent(context *gin.Context) {
+	eventId, err := strconv.ParseInt(context.Param("id"), 10, 64)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "an event ID is required"})
+		return
+	}
+
+	event, err := models.GetEventByID(eventId)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "could not retrieve event"})
+		return
+	}
+
+	err = event.Delete(eventId)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "could not delete event"})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{"message": "event deleted"})
 }

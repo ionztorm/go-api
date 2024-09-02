@@ -76,7 +76,6 @@ func GetEventByID(id int64) (*Event, error) {
 	query := "SELECT * FROM events WHERE id = ?"
 	row := db.DB.QueryRow(query, id)
 	err := row.Scan(&event.ID, &event.Name, &event.Description, &event.Location, &event.DateTime, &event.UserID)
-
 	if err != nil {
 		return nil, err
 	}
@@ -99,5 +98,20 @@ func (e Event) Update() error {
 	defer statement.Close()
 
 	_, error = statement.Exec(e.Name, e.Description, e.Location, e.DateTime, e.ID)
+	return error
+}
+
+func (e Event) Delete(id int64) error {
+	query := `DELETE FROM events WHERE id = ?`
+
+	statement, error := db.DB.Prepare(query)
+	if error != nil {
+		return error
+	}
+
+	defer statement.Close()
+
+	_, error = statement.Exec(e.ID)
+
 	return error
 }
