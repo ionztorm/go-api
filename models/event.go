@@ -110,7 +110,6 @@ func (e Event) Delete(id int64) error {
 	}
 
 	defer statement.Close()
-
 	_, error = statement.Exec(e.ID)
 
 	return error
