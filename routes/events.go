@@ -39,7 +39,7 @@ func createEvent(context *gin.Context) {
 
 	err := context.ShouldBindJSON(&event) // store the data from request body in event var
 	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "could not parse submitted data", "error": err})
+		context.JSON(http.StatusBadRequest, gin.H{"message": "could not parse submitted data", "error": err.Error()})
 		return
 	}
 
