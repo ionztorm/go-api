@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/LeonLonsdale/go-web-api/models"
+	"github.com/LeonLonsdale/go-web-api/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -35,16 +36,28 @@ func getEvents(context *gin.Context) {
 }
 
 func createEvent(context *gin.Context) {
+	token := context.Request.Header.Get("Authorization")
+
+	if token == "" {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "You must be logged in"})
+		return
+	}
+
+	UserID, err := utils.VerifyToken(token)
+	if token == "" {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "You must be logged in"})
+		return
+	}
+
 	var event models.Event
 
-	err := context.ShouldBindJSON(&event) // store the data from request body in event var
+	err = context.ShouldBindJSON(&event) // store the data from request body in event var
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "could not parse submitted data", "error": err.Error()})
 		return
 	}
 
-	event.ID = 1
-	event.UserID = 1
+	event.UserID = UserID
 
 	err = event.Save()
 	if err != nil {

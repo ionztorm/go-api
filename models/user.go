@@ -45,7 +45,7 @@ func (user User) Save() error {
 	return nil
 }
 
-func (user User) ValidateCredentials() error {
+func (user *User) ValidateCredentials() error {
 	// check if the user exists
 	query := `SELECT id, password, salt FROM users WHERE email = ?`
 
