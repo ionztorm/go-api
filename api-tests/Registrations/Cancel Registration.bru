@@ -1,0 +1,15 @@
+meta {
+  name: Cancel Registration
+  type: http
+  seq: 2
+}
+
+delete {
+  url: http://localhost:8080/events/1/registers
+  body: none
+  auth: none
+}
+
+headers {
+  authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20iLCJleHAiOjE3MjU0NzE2MDAsInVzZXJJZCI6MX0.mZP1q3dwYpAigOt4jHJkVaQaYX6Jr14nqj3tDNQipAU
+}

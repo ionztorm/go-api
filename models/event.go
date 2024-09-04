@@ -1,6 +1,9 @@
 package models
 
 import (
+	"database/sql"
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/LeonLonsdale/go-web-api/db"
@@ -116,7 +119,7 @@ func (e Event) Delete(id int64) error {
 }
 
 func (e Event) Register(userId int64) error {
-	query := "INSERT INTO regirtrations(event_id, user_id) VALUES (?, ?)"
+	query := "INSERT INTO registrations(event_id, user_id) VALUES (?, ?)"
 	statement, err := db.DB.Prepare(query)
 	if err != nil {
 		return err
@@ -127,4 +130,37 @@ func (e Event) Register(userId int64) error {
 	_, err = statement.Exec(e.ID, userId)
 
 	return err
+}
+
+func CheckIfAlreadyRegistered(userId int64, eventId int64) (bool, error) {
+	query := "SELECT 1 FROM registrations WHERE user_id = ? AND event_id = ?"
+	row := db.DB.QueryRow(query, userId, eventId)
+
+	var exists int
+	err := row.Scan(&exists)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			// no registrations found
+			return false, nil
+		}
+		return false, fmt.Errorf("check registrations for user %d and event %d: %w", userId, eventId, err)
+	}
+	// registration found
+	return true, nil
+}
+
+func (e Event) CancelRegistration(userId int64) error {
+	query := "DELETE FROM registrations WHERE user_id = ? AND event_id = ?"
+
+	statement, err := db.DB.Prepare(query)
+	if err != nil {
+		return fmt.Errorf("Preparing query statement: %w", err)
+	}
+
+	_, err = statement.Exec(userId, &e.ID)
+	if err != nil {
+		return fmt.Errorf("Deleting registration: %w", err)
+	}
+
+	return nil
 }
