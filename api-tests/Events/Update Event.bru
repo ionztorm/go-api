@@ -5,18 +5,19 @@ meta {
 }
 
 put {
-  url: http://localhost:8080/events/1
+  url: http://localhost:8080/events/12
   body: json
   auth: none
 }
 
 headers {
   content-type: application/json
+  authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3Q0QGV4YW1wbGUuY29tIiwiZXhwIjoxNzI1NDUzNTk1LCJ1c2VySWQiOjR9.Uzeuignav0HjQV0wH1rWs4iNy2mp2tSaiCwjb63_I78
 }
 
 body:json {
   {
-    "name":"The Main Event",
+    "name":"The Main Event 100",
     "description":"Manchester's biggest event of the summer",
     "location":"Manchester",
     "dateTime":"2025-01-01T15:30:00.000Z"

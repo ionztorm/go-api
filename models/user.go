@@ -15,7 +15,7 @@ type User struct {
 	Salt     string
 }
 
-func (user User) Save() error {
+func (user *User) Save() error {
 	query := `INSERT INTO users(email, password, salt) VALUES (?, ?, ?)`
 
 	statement, error := db.DB.Prepare(query)

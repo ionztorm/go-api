@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/LeonLonsdale/go-web-api/models"
-	"github.com/LeonLonsdale/go-web-api/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -36,28 +35,15 @@ func getEvents(context *gin.Context) {
 }
 
 func createEvent(context *gin.Context) {
-	token := context.Request.Header.Get("Authorization")
-
-	if token == "" {
-		context.JSON(http.StatusUnauthorized, gin.H{"message": "You must be logged in"})
-		return
-	}
-
-	UserID, err := utils.VerifyToken(token)
-	if token == "" {
-		context.JSON(http.StatusUnauthorized, gin.H{"message": "You must be logged in"})
-		return
-	}
-
 	var event models.Event
 
-	err = context.ShouldBindJSON(&event) // store the data from request body in event var
+	err := context.ShouldBindJSON(&event) // store the data from request body in event var
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "could not parse submitted data", "error": err.Error()})
 		return
 	}
 
-	event.UserID = UserID
+	event.UserID = context.GetInt64("UserID")
 
 	err = event.Save()
 	if err != nil {
@@ -75,9 +61,14 @@ func updateEvent(context *gin.Context) {
 		return
 	}
 
-	_, err = models.GetEventByID(eventId)
+	event, err := models.GetEventByID(eventId)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "could not retrieve event"})
+		return
+	}
+
+	if userId := context.GetInt64("UserID"); userId != event.UserID {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "this is not your event"})
 		return
 	}
 
@@ -109,6 +100,11 @@ func deleteEvent(context *gin.Context) {
 	event, err := models.GetEventByID(eventId)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "could not retrieve event"})
+		return
+	}
+
+	if userId := context.GetInt64("UserID"); userId != event.UserID {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "this is not your event"})
 		return
 	}
 
